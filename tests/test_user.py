@@ -4,7 +4,7 @@ import random
 import requests
 
 
-class TestRegisterAPI:
+class TestRegisterUserAPI:
     baseurl = "https://stores-tests-api.herokuapp.com/register"
 
     username = "user" + str(random.randint(1, 100))
@@ -31,4 +31,15 @@ class TestRegisterAPI:
 
 
 class TestLoginUserAPI:
-    baseurl = "https://stores-tests-api.herokuapp.com/login"
+    baseurl = "https://stores-tests-api.herokuapp.com/auth"
+    body = '{''"username": "user' + str(random.randint(1, 100)) + '", ''"password": "password' + str(
+        random.randint(1, 100)) + '"}'
+
+    def test_registration_user(self):
+        response = requests.post(url="https://stores-tests-api.herokuapp.com/register", json=json.loads(self.body))
+        assert response.status_code == 201
+
+    def test_successful_auth(self):
+        response = requests.post(url=self.baseurl, json=json.loads(self.body))
+        assert response.status_code == 200
+        assert type(response.json().get('access_token')) == str
