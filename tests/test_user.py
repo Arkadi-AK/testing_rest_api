@@ -34,12 +34,27 @@ class TestLoginUserAPI:
     baseurl = "https://stores-tests-api.herokuapp.com/auth"
     body = '{''"username": "user' + str(random.randint(1, 100)) + '", ''"password": "password' + str(
         random.randint(1, 100)) + '"}'
+    uuid = None
+    access_token = None
 
     def test_registration_user(self):
         response = requests.post(url="https://stores-tests-api.herokuapp.com/register", json=json.loads(self.body))
         assert response.status_code == 201
+        self.uuid = response.json().get('uuid')
 
     def test_successful_auth(self):
         response = requests.post(url=self.baseurl, json=json.loads(self.body))
         assert response.status_code == 200
+        self.access_token = response.json().get('access_token')
         assert type(response.json().get('access_token')) == str
+
+
+    def test_unsuccessful_auth(self):
+        response = requests.post(url=self.baseurl,
+                                 json=json.loads('{''"username//": "user", "password": "password//"}'))
+        assert response.status_code == 401
+        assert response.json().get('error') == "Bad Request"
+
+    def test_succesful_user_info(self):
+        response = requests.post(url=f"https://stores-tests-api.herokuapp.com/user_info/{self.uuid}")
+        print(response)
